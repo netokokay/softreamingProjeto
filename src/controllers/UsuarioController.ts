@@ -1,6 +1,4 @@
 import { Request, Response } from "express";
-import { AppDataSource } from "../data-source";
-import { Usuario } from "../entities/Usuario";
 import { BadRequestError } from "../helpers/api-errors";
 import { usuarioRepository } from "../repositories/usuarioRepository";
 
@@ -28,10 +26,17 @@ export class UsuarioController {
     }
 
     async update(req: Request, res: Response) {
-        const { id } = req.params
+        const { name, password } = req.body
 
-        // const usuario = await usuarioRepository.find({ where: { id: id } })
+        const user = await usuarioRepository.findOneBy({ id: parseInt(req.params.id) })
 
+        if (!user) return res.status(404).json({ message: 'Usuário não existe.' })
+
+        user.name = name
+        user.password = password
+        usuarioRepository.save(user)
+
+        return res.json('Usuário atualizado com sucesso!')
     }
 
     async delete(req: Request, res: Response) {
@@ -45,6 +50,11 @@ export class UsuarioController {
         return res.status(304).json({ mensagem: 'Não foi possivel deletar este usuário!' })
 
 
+    }
+
+    async listar(req: Request, res: Response) {
+        const lista = await usuarioRepository.findAndCount({ order: { id: "ASC" } })
+        return res.json(lista)
     }
 
 }

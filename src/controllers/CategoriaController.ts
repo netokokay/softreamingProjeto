@@ -18,7 +18,7 @@ export class CategoriaController {
     }
 
     async createFilme(req: Request, res: Response) {
-        const { title, url } = req.body
+        const { title, url, duracao, faixaEtaria } = req.body
         const { idCategoria } = req.params
         const categoria = await categoriaRepository.findOneBy({ id: Number(idCategoria) })
 
@@ -28,14 +28,24 @@ export class CategoriaController {
         const newFilme = filmeRepository.create({
             title,
             url,
-            categoria
+            categoria,
+            duracao,
+            faixaEtaria
         })
 
         await filmeRepository.save(newFilme)
         return res.status(201).json(newFilme)
     }
 
-    async list(req: Request, res: Response) {
+    async listarFilme(req: Request, res: Response) {
+        const filme = await filmeRepository.findOneBy({ title: req.body.title })
+
+        return res.json(filme)
+    }
+
+
+
+    async listAll(req: Request, res: Response) {
 
         const categorias = await categoriaRepository.find({
             relations: {
@@ -46,4 +56,98 @@ export class CategoriaController {
         return res.json(categorias)
     }
 
+    async listCategoria(req: Request, res: Response) {
+
+        const categoria = await categoriaRepository.find({
+            relations: {
+                filmes: true,
+            }, where: {
+                id: parseInt(req.params.idCategoria)
+            }
+        })
+
+        return res.json(categoria)
+    }
+
+    async updateCategory(req: Request, res: Response) {
+        const { name } = req.body
+
+        const categoria = await categoriaRepository.findOneBy({ id: parseInt(req.params.idCategoria) })
+
+        if (!categoria) return res.status(404).json({ message: 'Categoria não existe.' })
+
+        categoria.name = name
+        categoriaRepository.save(categoria)
+
+        return res.json('Categoria atualizada com sucesso!')
+    }
+
+    async updateFilme(req: Request, res: Response) {
+        const { title, url, duracao, faixaEtaria, categoria } = req.body
+
+        const filme = await filmeRepository.findOneBy({ id: parseInt(req.params.idFilme) })
+
+        if (!filme) return res.status(404).json({ message: 'Filme não existe.' })
+
+        filme.title = title
+        filme.url = url
+        filme.duracao = duracao
+        filme.faixaEtaria = faixaEtaria
+        filme.categoria = categoria
+        filmeRepository.save(filme)
+
+        console.log(filme);
+        
+
+        return res.json('Filme atualizado com sucesso!')
+    }
+
+    
+    async deleteFilme(req: Request, res: Response) {
+        const { idFilme } = req.params
+
+        const filme = await filmeRepository.delete(idFilme)
+
+        if (filme.affected == 1) {
+            return res.status(202).json({ mensagem: 'Filme deletado com sucesso!' })
+        }
+        return res.status(304).json({ mensagem: 'Não foi possivel deletar este Filme!' })
+
+
+    }
+
+    async deleteCategory(req: Request, res: Response) {
+
+        // const categoria = await categoriaRepository.findOneBy({ id: parseInt(req.params.idCategoria) })
+        // console.log(categoria);
+
+        // const film = await filmeRepository.findAndCount({ where: { categoria: +req.params.idCategoria } })
+        // console.log(film);
+
+        const categoria = await categoriaRepository.findAndCount({
+            relations: {
+                filmes: true,
+            }, where: {
+                id: parseInt(req.params.idCategoria)
+            }
+        })
+        console.log(categoria.values());
+
+
+
+
+
+
+        // const checkCategoria = await categoriaRepository.find({
+        //     relations: {
+        //         filmes: true,
+        //     }, where: {
+        //         id: parseInt(req.params.idCategoria)
+        //     }
+        // })
+
+
+        return res.json('cheguei aqui')
+
+    }
 }

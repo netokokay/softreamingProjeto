@@ -5,12 +5,18 @@ export class Usuario {
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column({type: 'text'})
+    @Column({ type: 'text' })
     name: string
 
-    @Column({type: 'text', unique: true})
+    @Column({ type: 'text', unique: true })
     email: string
 
-    @Column({type: 'text'})
+    @Column({ type: 'text' })
     password: string
+
+    @Column({nullable:true})
+    telefone: number
+
+    @Column({default: 0})
+    admin: number
 }
