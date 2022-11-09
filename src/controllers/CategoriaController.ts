@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Categoria } from "../entities/Categoria";
 import { BadRequestError } from "../helpers/api-errors";
 import { categoriaRepository } from "../repositories/categoriaRepository";
 import { filmeRepository } from "../repositories/filmeRepository";
@@ -97,12 +98,12 @@ export class CategoriaController {
         filmeRepository.save(filme)
 
         console.log(filme);
-        
+
 
         return res.json('Filme atualizado com sucesso!')
     }
 
-    
+
     async deleteFilme(req: Request, res: Response) {
         const { idFilme } = req.params
 
@@ -118,36 +119,29 @@ export class CategoriaController {
 
     async deleteCategory(req: Request, res: Response) {
 
-        // const categoria = await categoriaRepository.findOneBy({ id: parseInt(req.params.idCategoria) })
-        // console.log(categoria);
+        const categoria = await filmeRepository
+            .createQueryBuilder("filmes")
+            .where("filmes.categoria_id = :idCategoria", { idCategoria: req.params.idCategoria })
+            .getOne()
+  
 
-        // const film = await filmeRepository.findAndCount({ where: { categoria: +req.params.idCategoria } })
-        // console.log(film);
+        if (categoria) {            
+            return res.json('Você não pode deletar uma categoria que tenha algum filme associado!')
 
-        const categoria = await categoriaRepository.findAndCount({
-            relations: {
-                filmes: true,
-            }, where: {
-                id: parseInt(req.params.idCategoria)
-            }
-        })
-        console.log(categoria.values());
+        }
 
+        if (!categoria) {
+            
+            await categoriaRepository
+            .createQueryBuilder("categorias")
+            .delete()
+            .from(Categoria)
+            .where("id = :idCategoria", { idCategoria: req.params.idCategoria })
+            .execute()
 
+            return res.json('Categoria deletada!')
+        }
 
-
-
-
-        // const checkCategoria = await categoriaRepository.find({
-        //     relations: {
-        //         filmes: true,
-        //     }, where: {
-        //         id: parseInt(req.params.idCategoria)
-        //     }
-        // })
-
-
-        return res.json('cheguei aqui')
-
+        return res.json('Ops, algum erro aconteceu!')
     }
 }
