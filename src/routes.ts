@@ -7,7 +7,7 @@ const routes = Router()
 routes.post('/Categoria', new CategoriaController().create)
 routes.get('/listarCategoria/:idCategoria', new CategoriaController().listCategoria)
 routes.put('/atualizarCategoria/:idCategoria', new CategoriaController().updateCategory)
-routes.delete('/deletarCategoria/:idCategoria', new CategoriaController().deleteCategory) //pendente
+routes.delete('/deletarCategoria/:idCategoria', new CategoriaController().deleteCategory)
 
 routes.post('/filme/:idCategoria/create', new CategoriaController().createFilme)
 routes.get('/listarFilme', new CategoriaController().listarFilme)
@@ -19,5 +19,7 @@ routes.post('/CriarUsuario', new UsuarioController().create)
 routes.delete('/DeletarUsuario/:id', new UsuarioController().delete)
 routes.put('/usuarios/:id', new UsuarioController().update)
 routes.get('/listaUsuarios', new UsuarioController().listar)
+
+routes.post('/login', new UsuarioController().login)
 
 export default routes

@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ILike, Like } from "typeorm";
 import { Categoria } from "../entities/Categoria";
 import { BadRequestError } from "../helpers/api-errors";
 import { categoriaRepository } from "../repositories/categoriaRepository";
@@ -39,12 +40,11 @@ export class CategoriaController {
     }
 
     async listarFilme(req: Request, res: Response) {
-        const filme = await filmeRepository.findOneBy({ title: req.body.title })
+
+        const filme = await filmeRepository.findOneBy({ title: Like(`%${req.body.title}%`) })
 
         return res.json(filme)
     }
-
-
 
     async listAll(req: Request, res: Response) {
 
@@ -102,7 +102,6 @@ export class CategoriaController {
 
         return res.json('Filme atualizado com sucesso!')
     }
-
 
     async deleteFilme(req: Request, res: Response) {
         const { idFilme } = req.params

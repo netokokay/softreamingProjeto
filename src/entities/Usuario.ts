@@ -17,6 +17,6 @@ export class Usuario {
     @Column({nullable:true})
     telefone: number
 
-    @Column({default: 0})
-    admin: number
+    @Column({default: false})
+    admin: boolean;
 }
